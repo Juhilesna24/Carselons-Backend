@@ -23,10 +23,15 @@ const getAvailableTimeSlots = async (req, res) => {
       // Calculate available time slots based on working hours and selected date
 
       const availableTimeSlots = calculateAvailableTimeSlots(workingHours, selectedDate);
-      const utcDate = new Date(selectedDate).toISOString().split('T')[0];
+      const year = (new Date(selectedDate)).getFullYear();
+      const month = String((new Date(selectedDate)).getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+      const day = String((new Date(selectedDate)).getDate()).padStart(2, '0');
+
+      const utcDate = `${year}-${month}-${day}`;
       console.log(utcDate, 'utc')
       console.log(serviceCenterId, 'se')
       const fetchBookedTimeSlotsQuery = 'SELECT time_slot FROM service_bookings WHERE service_center_id = ? AND date = ?';
+      console.log(fetchBookedTimeSlotsQuery, 'booked')
       db.query(fetchBookedTimeSlotsQuery, [serviceCenterId, utcDate], (err, results) => {
         if (err) {
           console.error(err);
@@ -40,7 +45,7 @@ const getAvailableTimeSlots = async (req, res) => {
         console.log(bookedTimeSlots, 'bokmeedd')
         // Filter out booked time slots from available time slots
         const availableTimeSlotsAfterBookings = availableTimeSlots.filter(slot => !bookedTimeSlots.includes(slot));
-
+        console.log(availableTimeSlotsAfterBookings, 'available')
         // Send the available time slots to the client
 
         res.status(200).json({ availableTimeSlotsAfterBookings });

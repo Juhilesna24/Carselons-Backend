@@ -1,9 +1,10 @@
-const mysql = require('mysql2');
-const db = require('../../../db'); // Configure and export database connection
+const db = require('../../../db');
+const transporter  = require('../../utils/mailer');
 
 const createBooking = async (req, res) => {
   const { date, timeSlot, serviceType, serviceCenterId, vehicle_id } = req.body;
   const userId = req.userId; // Extracted from token verification
+  const email = req.email;
 
   try {
     // Insert booking details into the database
@@ -11,13 +12,30 @@ const createBooking = async (req, res) => {
     db.query(insertBookingQuery, [userId, date, timeSlot, serviceType, serviceCenterId, vehicle_id], (err, result) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ message: 'Error creating booking' });
+        return res.status(500).json({ success: false, message: 'Error creating booking' });
       }
-      res.status(201).json({ message: 'Booking created successfully' });
+
+      // Send an email to the user
+      const mailOptions = {
+        from: 'jlesna66@gmail.com',
+        to: email, // Replace with the user's email address
+        subject: 'Booking Confirmation',
+        text: 'Your booking has been successfully created.'
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+      res.status(201).json({ success: true, message: 'Booking created successfully' });
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error creating booking' });
+    res.status(500).json({ success: false, message: 'Error creating booking' });
   }
 };
 

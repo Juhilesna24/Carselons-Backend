@@ -3,15 +3,17 @@ const db = require('../../../db'); // Configure and export database connection
 
 const getServiceCentersByUserId = async (req, res) => {
   const userId = req.userId;
+  const role = req.role;
+  console.log(role, 'role')
 
   try {
-    const fetchServiceCentersQuery = 'SELECT * FROM service_centers WHERE user_id = ?';
+    const fetchServiceCentersQuery = role === 'user' ? 'SELECT * FROM service_centers' : 'SELECT * FROM service_centers WHERE user_id = ? ORDER BY id DESC LIMIT 1';
     db.query(fetchServiceCentersQuery, [userId], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Error fetching service centers' });
       }
-      res.status(200).json(result);
+      res.status(200).json(result[0]);
     });
   } catch (error) {
     console.error(error);

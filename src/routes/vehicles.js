@@ -10,7 +10,9 @@ const createBookingsController = require('../controllers/Bookings/createBooking'
 const addVehicleDetailsController = require('../controllers/Vehicles/addVehicleDetails');
 const getVehicleDetailsController = require('../controllers/Vehicles/getVehicleDetails');
 const fetchBookingsController = require('../controllers/Bookings/getBookingDetails');
-const { signUpValidator, loginValidator, addServiceCenterValidator, updateStatusValidator, createBookingValidator, addVehicleDetailsValidator } = require('../middleware/validator');
+const updateVehicleDetailsController = require('../controllers/Vehicles/updateVehicleDetails');
+const getServiceDetailsController = require('../controllers/serviceCenter/getServiceDetails');
+const { signUpValidator, loginValidator, addServiceCenterValidator, updateStatusValidator, createBookingValidator, vehicleDetailsValidator } = require('../middleware/validator');
 const verifyToken = require('../middleware/authMiddleware');
 
 
@@ -23,14 +25,17 @@ router.post('/service-centers', verifyToken, addServiceCenterValidator, addServi
 router.get('/service-centers', verifyToken, getServiceCentersByUserId);
 router.patch('/service-centers/:id/status', verifyToken, updateStatusValidator, updateStatusController);
 router.get('/service-centers/:id/available-time-slots', verifyToken, getAvailableTimeSlotsController);
+router.get('/service-details/:id', verifyToken, getServiceDetailsController);
 
 //Bookings
 router.post('/bookings', verifyToken, createBookingValidator, createBookingsController);
 router.get('/bookings', verifyToken, fetchBookingsController);
 
 //Vehicles
-router.post('/vehicles', verifyToken, addVehicleDetailsValidator, addVehicleDetailsController);
+router.post('/vehicles', verifyToken, vehicleDetailsValidator, addVehicleDetailsController);
 router.get('/vehicles', verifyToken, getVehicleDetailsController);
+router.patch('/vehicles/:id', verifyToken, vehicleDetailsValidator, updateVehicleDetailsController);
+
 
 
 

@@ -1,13 +1,12 @@
 const db = require('../../../db'); // Configure and export database connection
 
 // Fetch bookings for a specific user
-const fetchBookings = (req, res) => {
-  const userId = req.userId;
-  const service_center_id = req.query.id;
-  const role = req.role;
-  const fetchBookingsQuery = role === 'user' ? 'SELECT * FROM service_bookings WHERE user_id = ?' : 'SELECT * FROM service_bookings WHERE service_center_id = ?' ;
-  const fetchId = role === 'user' ? userId : service_center_id;
-  db.query(fetchBookingsQuery, [fetchId], (err, bookingResults) => {
+const fetchServiceDetails = (req, res) => {
+  // const userId = req.userId;
+  const service_center_id = req.params.id;
+  const fetchServiceDetailsQuery = 'SELECT * FROM service_bookings WHERE service_center_id = ? AND status IN ("inprogress", "pending")';
+
+  db.query(fetchServiceDetailsQuery, [service_center_id], (err, bookingResults) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Error checking booking details' });
@@ -15,8 +14,6 @@ const fetchBookings = (req, res) => {
 
     const bookingPromises = bookingResults.map(booking => {
       const fetchVehicleQuery = 'SELECT * FROM vehicles WHERE id = ?';
-      const fetchServiceCenterQuery = 'SELECT * FROM service_centers WHERE id = ?';
-
       const vehiclePromise = new Promise((resolve, reject) => {
         db.query(fetchVehicleQuery, [booking.vehicle_id], (vehicleErr, vehicleResult) => {
           if (vehicleErr) {
@@ -27,22 +24,11 @@ const fetchBookings = (req, res) => {
         });
       });
 
-      const serviceCenterPromise = new Promise((resolve, reject) => {
-        db.query(fetchServiceCenterQuery, [booking.service_center_id], (centerErr, centerResult) => {
-          if (centerErr) {
-            reject(centerErr);
-          } else {
-            resolve(centerResult[0]);
-          }
-        });
-      });
-
-      return Promise.all([vehiclePromise, serviceCenterPromise])
-        .then(([vehicle, serviceCenter]) => {
+      return Promise.all([vehiclePromise])
+        .then(([vehicle]) => {
           return {
             booking: booking,
-            vehicle: vehicle,
-            serviceCenter: serviceCenter
+            vehicle: vehicle
           };
         });
     });
@@ -58,4 +44,4 @@ const fetchBookings = (req, res) => {
   });
 };
 
-module.exports = fetchBookings;
+module.exports = fetchServiceDetails;

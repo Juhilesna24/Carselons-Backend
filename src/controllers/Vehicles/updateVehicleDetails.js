@@ -1,31 +1,33 @@
 const mysql = require('mysql2');
 const db = require('../../../db'); // Configure and export database connection
 
-const addVehicleDetails = async (req, res) => {
+const updateVehicleDetails = async (req, res) => {
   const { make, model, year, mileage } = req.body;
+  const id = req.params.id;
   const user_id = req.userId;
 
   try {
     // Check if the user has already added the same vehicle
-    const checkVehicleQuery = 'SELECT * FROM vehicles WHERE user_id = ? AND make = ? AND model = ? AND year = ?';
-    db.query(checkVehicleQuery, [user_id, make, model, year], (err, result) => {
+    const checkVehicleQuery = 'SELECT * FROM vehicles WHERE id = ? ';
+    db.query(checkVehicleQuery, [id], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ success: false, message: 'Error checking vehicle details' });
       }
 
-      if (result.length > 0) {
-        return res.status(400).json({ success: false, message: 'Vehicle already added for the user' });
+      if (!result.length) {
+        return res.status(400).json({ success: false, message: 'Vehicle Not Found' });
       }
 
+
       // If the vehicle doesn't exist, insert the vehicle details
-      const insertVehicleDetailsQuery = 'INSERT INTO vehicles (user_id, make, model, year, mileage) VALUES (?, ?, ?, ?, ?)';
-      db.query(insertVehicleDetailsQuery, [user_id, make, model, year, mileage], (err, result) => {
+      const insertVehicleDetailsQuery = 'UPDATE vehicles set make = ?, model = ?, year = ?, mileage = ? WHERE id = ?';
+      db.query(insertVehicleDetailsQuery, [make, model, year, mileage, id], (err, result) => {
         if (err) {
           console.error(err);
           return res.status(500).json({ success: false, message: 'Error adding vehicle details' });
         }
-        res.status(201).json({ success: true, message: 'Vehicle details added successfully' });
+        res.status(201).json({ success: true, message: 'Vehicle details updated successfully' });
       });
     });
   } catch (error) {
@@ -34,4 +36,4 @@ const addVehicleDetails = async (req, res) => {
   }
 };
 
-module.exports = addVehicleDetails;
+module.exports = updateVehicleDetails;

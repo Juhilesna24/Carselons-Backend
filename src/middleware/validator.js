@@ -38,7 +38,7 @@ const createBookingValidator = [
   validationResult
 ];
 
-const addVehicleDetailsValidator = [
+const vehicleDetailsValidator = [
   body('make').notEmpty().withMessage('Make is required'),
   body('model').notEmpty().withMessage('Model is required'),
   body('year').isInt({ min: 1900, max: new Date().getFullYear() }).withMessage('Invalid year'),
@@ -53,5 +53,5 @@ module.exports = {
   addServiceCenterValidator,
   updateStatusValidator,
   createBookingValidator,
-  addVehicleDetailsValidator
+  vehicleDetailsValidator
 };
