@@ -12,6 +12,8 @@ const getVehicleDetailsController = require('../controllers/Vehicles/getVehicleD
 const fetchBookingsController = require('../controllers/Bookings/getBookingDetails');
 const updateVehicleDetailsController = require('../controllers/Vehicles/updateVehicleDetails');
 const getServiceDetailsController = require('../controllers/serviceCenter/getServiceDetails');
+const getServiceCenterStaticController = require('../controllers/admin/fetchServiceCount');
+const getTimeSlotStaticController = require('../controllers/admin/fetchPeakTime');
 const { signUpValidator, loginValidator, addServiceCenterValidator, updateStatusValidator, createBookingValidator, vehicleDetailsValidator } = require('../middleware/validator');
 const verifyToken = require('../middleware/authMiddleware');
 
@@ -20,7 +22,7 @@ const verifyToken = require('../middleware/authMiddleware');
 router.post('/signup', signUpValidator, userSignUpController);
 router.post('/login', loginValidator, userLoginController);
 
-// Route to get service centers by user ID
+//Service Center
 router.post('/service-centers', verifyToken, addServiceCenterValidator, addServiceCenterController);
 router.get('/service-centers', verifyToken, getServiceCentersByUserId);
 router.patch('/service-centers/:id/status', verifyToken, updateStatusValidator, updateStatusController);
@@ -35,6 +37,10 @@ router.get('/bookings', verifyToken, fetchBookingsController);
 router.post('/vehicles', verifyToken, vehicleDetailsValidator, addVehicleDetailsController);
 router.get('/vehicles', verifyToken, getVehicleDetailsController);
 router.patch('/vehicles/:id', verifyToken, vehicleDetailsValidator, updateVehicleDetailsController);
+
+//Admin
+router.get('/admin/static', verifyToken, getServiceCenterStaticController);
+router.get('/admin/time-slot-static', verifyToken, getTimeSlotStaticController);
 
 
 
