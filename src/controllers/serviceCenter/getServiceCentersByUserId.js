@@ -7,13 +7,14 @@ const getServiceCentersByUserId = async (req, res) => {
   console.log(role, 'role')
 
   try {
-    const fetchServiceCentersQuery = role === 'user' ? 'SELECT * FROM service_centers' : 'SELECT * FROM service_centers WHERE user_id = ? ORDER BY id DESC LIMIT 1';
+    const fetchServiceCentersQuery = role == 'user' ? 'SELECT * FROM service_centers' : 'SELECT * FROM service_centers WHERE user_id = ? ORDER BY id DESC LIMIT 1';
     db.query(fetchServiceCentersQuery, [userId], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Error fetching service centers' });
       }
-      res.status(200).json(result[0]);
+      const data = role === 'user' ? result : result[0];
+      res.status(200).json(data);
     });
   } catch (error) {
     console.error(error);
